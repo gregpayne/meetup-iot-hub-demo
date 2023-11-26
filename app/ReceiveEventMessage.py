@@ -12,6 +12,7 @@ An example to show receiving events from an Event Hub asynchronously.
 import asyncio
 import os
 import sys
+from flask_socketio import SocketIO
 from azure.eventhub.aio import EventHubConsumerClient
 
 # The Service Event Hub compatible endpoint from Azure portal Built-in endpoint section of theIoT Hub
@@ -24,6 +25,12 @@ async def on_event(partition_context, event):
     # If the operation is i/o intensive, async will have better performance.
     print("Received event from partition: {}.".format(partition_context.partition_id))
     print(f'Event Data: {event.body_as_str(encoding="UTF-8")}', file=sys.stderr)
+    payload = {
+        "IotData": event.body_as_str(encoding="UTF-8"),
+        "MessageDate": event.enqueued_time.strftime("%Y-%m-%d %H:%M:%S.%f"),
+        "DeviceId": event.system_properties['iothub-connection-device-id']
+    }
+    socketio.emit()
     await partition_context.update_checkpoint(event)
 
 

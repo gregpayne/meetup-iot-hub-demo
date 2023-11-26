@@ -1,20 +1,13 @@
 import os
-from flask import (Flask, redirect, render_template, request,
-                   send_from_directory, url_for)
+from flask import Flask
+from flask_socketio import SocketIO
 
+socketio = SocketIO()
 
-def create_app(test_config = None):
+def create_app(debug=False):
     # create and configure the app
-    app = Flask(__name__, instance_relative_config=True)
-
-        # ensure the instance and scripts folders exists
-    try:
-        try:
-            os.makedirs(app.instance_path)
-        except:
-            pass
-    except OSError:
-        pass
+    app = Flask(__name__)
+    app.debug = debug
 
     # a simple page that says hello
     @app.route('/hello')
@@ -23,6 +16,6 @@ def create_app(test_config = None):
     
     from . import main
     app.register_blueprint(main.bp)
-    app.add_url_rule('/', endpoint='index')
 
+    socketio.init_app(app)
     return app
