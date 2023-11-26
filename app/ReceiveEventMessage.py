@@ -12,6 +12,7 @@ An example to show receiving events from an Event Hub asynchronously.
 import asyncio
 import os
 import sys
+import json
 from flask_socketio import SocketIO
 from azure.eventhub.aio import EventHubConsumerClient
 
@@ -19,18 +20,27 @@ from azure.eventhub.aio import EventHubConsumerClient
 CONNECTION_STR = os.environ["EVENT_HUB_CONN_STR"]
 EVENTHUB_NAME = os.environ['EVENT_HUB_NAME']
 
+def convert(data):
+    if isinstance(data, bytes):  return data.decode('ascii')
+    if isinstance(data, dict):   return dict(map(convert, data.items()))
+    if isinstance(data, tuple):  return map(convert, data)
+    return data
 
 async def on_event(partition_context, event):
     # Put your code here.
     # If the operation is i/o intensive, async will have better performance.
     print("Received event from partition: {}.".format(partition_context.partition_id))
     print(f'Event Data: {event.body_as_str(encoding="UTF-8")}', file=sys.stderr)
+    # the properties is a dictionary where the keys are decoded to bytes
+    # this needs to be converted to a string before reading the values
+    properties = { key.decode(): convert(val) for key, val in event.system_properties.items()}
     payload = {
         "IotData": event.body_as_str(encoding="UTF-8"),
         "MessageDate": event.enqueued_time.strftime("%Y-%m-%d %H:%M:%S.%f"),
-        "DeviceId": event.system_properties['iothub-connection-device-id']
+        "DeviceId": properties['iothub-connection-device-id']
     }
-    socketio.emit()
+    print(f'Payload: {payload}', file=sys.stderr)
+    # socketio.emit()
     await partition_context.update_checkpoint(event)
 
 
@@ -61,7 +71,7 @@ async def on_error(partition_context, error):
 async def main():
     client = EventHubConsumerClient.from_connection_string(
         conn_str=CONNECTION_STR,
-        consumer_group="$default",
+        consumer_group="dashboard-cg",
         eventhub_name=EVENTHUB_NAME
     )
     async with client:
