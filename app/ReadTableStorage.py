@@ -1,6 +1,7 @@
 from azure.data.tables import TableClient
 import os
 import pandas as pd
+import matplotlib.pyplot as plt
 
 TABLE_CONNECTION_STRING = os.environ["TABLE_CONNECTION_STRING"]
 
@@ -17,7 +18,16 @@ if __name__ == "__main__":
         # print(entry)
         record = {"dateTime": convertTime(entry['EventEnqueuedUtcTime']), 'temperature': entry['temperature'], 'humidity': entry['humidity']}
         data.append(record)
-    # print(data)
     df = pd.DataFrame(data)
-    print(df)
-    
+
+    fig, ax1 = plt.subplots()
+    fig.subplots_adjust(bottom=0.3)
+    ax2 = ax1.twinx()
+    ax1.plot(df['dateTime'], df['temperature'], 'g-')
+    ax2.plot(df['dateTime'], df['humidity'], 'b-')
+    ax1.set_xlabel('Time')
+    ax1.set_xticklabels(df['dateTime'], rotation=45)
+    ax1.set_ylabel('Temperature (C)', color='g')
+    ax2.set_ylabel('Humidity (%)', color='b')
+    plt.title('Temperature and Humidity')
+    plt.show()
