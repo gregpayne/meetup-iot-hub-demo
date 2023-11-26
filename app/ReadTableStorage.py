@@ -19,6 +19,7 @@ if __name__ == "__main__":
         record = {"dateTime": convertTime(entry['EventEnqueuedUtcTime']), 'temperature': entry['temperature'], 'humidity': entry['humidity']}
         data.append(record)
     df = pd.DataFrame(data)
+    df.sort_values(by=['dateTime'], inplace=True)
 
     fig, ax1 = plt.subplots()
     fig.subplots_adjust(bottom=0.3)
