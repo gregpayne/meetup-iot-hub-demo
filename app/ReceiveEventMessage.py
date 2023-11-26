@@ -11,6 +11,7 @@ An example to show receiving events from an Event Hub asynchronously.
 
 import asyncio
 import os
+import sys
 from azure.eventhub.aio import EventHubConsumerClient
 
 # The Service Event Hub compatible endpoint from Azure portal Built-in endpoint section of theIoT Hub
@@ -22,7 +23,7 @@ async def on_event(partition_context, event):
     # Put your code here.
     # If the operation is i/o intensive, async will have better performance.
     print("Received event from partition: {}.".format(partition_context.partition_id))
-    print(f'Event Data: {event.body_as_str(encoding="UTF-8")}')
+    print(f'Event Data: {event.body_as_str(encoding="UTF-8")}', file=sys.stderr)
     await partition_context.update_checkpoint(event)
 
 

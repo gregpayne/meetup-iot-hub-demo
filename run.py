@@ -1,11 +1,12 @@
 import os
 import sys
 import socket
+import asyncio
 from waitress import serve
-from app import create_app
-
+from app import create_app, ReceiveEventMessage
 
 if __name__ == '__main__':
+   asyncio.run(ReceiveEventMessage.main())
    # Run from the same directory as this script
    this_files_dir = os.path.dirname(os.path.abspath(__file__))
    os.chdir(this_files_dir)
