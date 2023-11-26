@@ -3,7 +3,6 @@ import sys
 import socket
 import asyncio
 from app import create_app, socketio
-from app import ReceiveEventMessage
 
 app = create_app(debug=True)
 
@@ -16,7 +15,6 @@ if __name__ == '__main__':
    # port = 8003
    # print('Running on http://{0}:{1}'.format(host, port), file=sys.stderr)
 
-   asyncio.run(ReceiveEventMessage.main())
    socketio.run(app, port=5000, host='127.0.0.1')
 
 

@@ -15,16 +15,27 @@ import sys
 import json
 from flask_socketio import SocketIO
 from azure.eventhub.aio import EventHubConsumerClient
+import websockets
+
 
 # The Service Event Hub compatible endpoint from Azure portal Built-in endpoint section of theIoT Hub
 CONNECTION_STR = os.environ["EVENT_HUB_CONN_STR"]
 EVENTHUB_NAME = os.environ['EVENT_HUB_NAME']
+
+sio = None
 
 def convert(data):
     if isinstance(data, bytes):  return data.decode('ascii')
     if isinstance(data, dict):   return dict(map(convert, data.items()))
     if isinstance(data, tuple):  return map(convert, data)
     return data
+
+async def send_message(payload):
+    async with websockets.connect('ws://127.0.0.1:5000') as websocket:
+        try:
+            await websocket.send(json.dumps(payload))
+        except Exception as e:
+            print(f'Error: {e}', file=sys.stderr)
 
 async def on_event(partition_context, event):
     # Put your code here.
@@ -40,7 +51,7 @@ async def on_event(partition_context, event):
         "DeviceId": properties['iothub-connection-device-id']
     }
     print(f'Payload: {payload}', file=sys.stderr)
-    # socketio.emit()
+    await send_message(payload)
     await partition_context.update_checkpoint(event)
 
 
@@ -74,6 +85,7 @@ async def main():
         consumer_group="dashboard-cg",
         eventhub_name=EVENTHUB_NAME
     )
+
     async with client:
         await client.receive(
             on_event=on_event,
