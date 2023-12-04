@@ -8,7 +8,11 @@ def create_app(debug=False):
     # create and configure the app
     app = Flask(__name__)
     app.debug = debug
-    app.config['TABLE_CONNECTION_STRING'] = os.environ["TABLE_CONNECTION_STRING"]
+    try:
+        # Running locally with a environment variable set in terminal
+        app.config['TABLE_CONNECTION_STRING'] = os.environ["TABLE_CONNECTION_STRING"]
+    except KeyError:
+        app.config['TABLE_CONNECTION_STRING'] = None
     # if app.config['TABLE_CONNECTION_STRING'] is None:
         # raise ValueError("No TABLE_CONNECTION_STRING set for Flask application")
 
