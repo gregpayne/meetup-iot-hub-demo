@@ -9,6 +9,8 @@ def create_app(debug=False):
     app = Flask(__name__)
     app.debug = debug
     app.config['TABLE_CONNECTION_STRING'] = os.environ["TABLE_CONNECTION_STRING"]
+    if app.config['TABLE_CONNECTION_STRING'] is None:
+        raise ValueError("No TABLE_CONNECTION_STRING set for Flask application")
 
     # a simple page that says hello
     @app.route('/hello')
