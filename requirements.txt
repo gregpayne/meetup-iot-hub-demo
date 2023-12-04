@@ -4,10 +4,18 @@
 #
 #    pip-compile --output-file=requirements.txt
 #
+azure-core==1.29.5
+    # via azure-data-tables
+azure-data-tables==12.4.4
+    # via -r requirements.in
 bidict==0.22.1
     # via python-socketio
 blinker==1.7.0
     # via flask
+certifi==2023.11.17
+    # via requests
+charset-normalizer==3.3.2
+    # via requests
 click==8.1.7
     # via flask
 colorama==0.4.6
@@ -32,6 +40,12 @@ greenlet==3.0.1
     # via eventlet
 h11==0.14.0
     # via wsproto
+idna==3.6
+    # via
+    #   requests
+    #   yarl
+isodate==0.6.1
+    # via azure-data-tables
 itsdangerous==2.1.2
     # via flask
 jinja2==3.1.2
@@ -44,6 +58,8 @@ markupsafe==2.1.3
     #   werkzeug
 matplotlib==3.7.1
     # via -r requirements.in
+multidict==6.0.4
+    # via yarl
 numpy==1.26.2
     # via
     #   contourpy
@@ -67,18 +83,29 @@ python-socketio==5.10.0
     # via flask-socketio
 pytz==2023.3.post1
     # via pandas
+requests==2.31.0
+    # via azure-core
 simple-websocket==1.0.0
     # via python-engineio
 six==1.16.0
     # via
+    #   azure-core
     #   eventlet
+    #   isodate
     #   python-dateutil
+typing-extensions==4.8.0
+    # via
+    #   azure-core
+    #   azure-data-tables
 tzdata==2023.3
     # via pandas
+urllib3==2.1.0
+    # via requests
 websockets==11.0.3
     # via -r requirements.in
-Werkzeug==2.3.3
+werkzeug==2.3.3
     # via flask
 wsproto==1.2.0
     # via simple-websocket
-azure_storage==0.36.0
+yarl==1.9.3
+    # via azure-data-tables
