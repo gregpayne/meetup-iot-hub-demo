@@ -7,12 +7,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <script src="https://code.jquery.com/jquery-3.4.0.min.js" integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg=" crossorigin="anonymous"" type="text/javascript" charset="utf-8"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
+    <script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.3/socket.io.js"></script>
     <script src="../static/js/chart-device-data.js" type="text/javascript" charset="utf-8"></script>
     <link href="../static/css/style.css" rel="stylesheet" />
 
     <title>Temperature &amp; Humidity Real-time Data</title>
+    <script type="text/javascript">
+        $(function()
+        {
+            $( "#from" ).datepicker(
+            {
+                defaultDate: "d",
+                changeMonth: true,
+                numberOfMonths: 1,
+                showButtonPanel: true,
+                dateFormat: "yy-mm-dd",
+                onSelect: function( selectedDate )
+                {
+                    $( "#to" ).datepicker( "option", "minDate", selectedDate );
+                }
+            });
+            $( "#to" ).datepicker(
+            {
+                defaultDate: "d",
+                changeMonth: true,
+                numberOfMonths: 1,
+                showButtonPanel: true,
+                dateFormat: "yy-mm-dd",
+                onSelect: function( selectedDate )
+                {
+                    $( "#from" ).datepicker( "option", "maxDate", selectedDate );
+                }
+            });
+        });
+    </script>
 </head>
 
 <body>
@@ -23,9 +53,36 @@
         </span>
         <span>Temperature & Humidity Real-time Data</span>
     </h1>
-    <div>
-        <canvas id="iotChart"></canvas>
+    <div class="container">
+        <!-- <canvas id="iotChart"></canvas> -->
+        <form action="/" method="get">
+            <table style="padding:10px">
+                <tr>
+                    <td class="pad" align="right"><label for="from">From</label></td>
+                    <td class="pad"><input type="text" id="from" name="from" autocomplete="off"/></td>
+                </tr>
+                <tr>
+                    <td class="pad" align="right"><label for="to">To</label></td>
+                    <td class="pad"><input type="text" id="to" name="to" autocomplete="off"/></td>
+                </tr>
+                <td class="pad" colspan="2">
+                    <input type="submit" class="btn" name="selectDate" value="Update graph to selected Dates" style="margin: 3px 0px 0px 0px"></br>
+                </tr>
+            </table>
+        </form>
     </div>
+    <div class="container">
+        <canvas id="plotChart"></canvas>
+    </div>
+    {% if display %}
+    <script type="text/javascript">
+        var ctx = document.getElementById("plotChart");
+        var myChart = new Chart(ctx, {
+            data: {{ plot['data']|tojson }},
+            options: {{ plot['options']|tojson }}
+        });
+    </script>
+    {% endif %}
 </body>
 
 </html>
