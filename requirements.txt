@@ -81,4 +81,4 @@ Werkzeug==2.2.2
     # via flask
 wsproto==1.2.0
     # via simple-websocket
-azure_storage==0.37.0
+azure_storage==0.36.0
