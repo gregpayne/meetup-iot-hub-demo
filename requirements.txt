@@ -5,8 +5,12 @@
 #    pip-compile --output-file=requirements.txt
 #
 azure-core==1.29.5
-    # via azure-data-tables
+    # via
+    #   azure-data-tables
+    #   azure-identity
 azure-data-tables==12.4.4
+    # via -r requirements.in
+azure-identity==1.15.0
     # via -r requirements.in
 bidict==0.22.1
     # via python-socketio
@@ -14,6 +18,8 @@ blinker==1.7.0
     # via flask
 certifi==2023.11.17
     # via requests
+cffi==1.16.0
+    # via cryptography
 charset-normalizer==3.3.2
     # via requests
 click==8.1.7
@@ -22,6 +28,11 @@ colorama==0.4.6
     # via click
 contourpy==1.2.0
     # via matplotlib
+cryptography==41.0.7
+    # via
+    #   azure-identity
+    #   msal
+    #   pyjwt
 cycler==0.12.1
     # via matplotlib
 dnspython==2.4.2
@@ -58,6 +69,12 @@ markupsafe==2.1.3
     #   werkzeug
 matplotlib==3.7.1
     # via -r requirements.in
+msal==1.25.0
+    # via
+    #   azure-identity
+    #   msal-extensions
+msal-extensions==1.0.0
+    # via azure-identity
 multidict==6.0.4
     # via yarl
 numpy==1.26.2
@@ -71,6 +88,14 @@ pandas==2.0.0
     # via -r requirements.in
 pillow==10.1.0
     # via matplotlib
+portalocker==2.8.2
+    # via msal-extensions
+pycparser==2.21
+    # via cffi
+pyjwt[crypto]==2.8.0
+    # via
+    #   msal
+    #   pyjwt
 pyparsing==3.1.1
     # via matplotlib
 python-dateutil==2.8.2
@@ -83,8 +108,12 @@ python-socketio==5.10.0
     # via flask-socketio
 pytz==2023.3.post1
     # via pandas
+pywin32==306
+    # via portalocker
 requests==2.31.0
-    # via azure-core
+    # via
+    #   azure-core
+    #   msal
 simple-websocket==1.0.0
     # via python-engineio
 six==1.16.0
