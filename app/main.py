@@ -6,6 +6,7 @@ import asyncio
 import sys
 from . import socketio
 from azure.data.tables import TableClient
+from azure.identity import DefaultAzureCredential
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -28,7 +29,14 @@ def main():
     if request.args.get('selectDate', ''):
         date_from = '{0}T00:00:00.0Z'.format(request.args.get('from', '').strip()) # '2014-05-27 11:50:12'
         date_to = '{0}T23:59:59.9Z'.format(request.args.get('to', '').strip()) # '2018-09-13 13:21:39'
-        service = TableClient.from_connection_string(conn_str=current_app.config['TABLE_CONNECTION_STRING'], table_name='greenhouseenvironment')
+        tableConnectionString = current_app.config['TABLE_CONNECTION_STRING']
+        if tableConnectionString is None:
+            print('No TABLE_CONNECTION_STRING set for Flask application', file=sys.stderr)
+            print('Using DefaultAzureCredential', file=sys.stderr)
+            service = TableClient.from_table_url(table_url='https://gpiotstorage.table.core.windows.net/greenhouseenvironment', credential=DefaultAzureCredential())
+        else:
+            print('Using TABLE_CONNECTION_STRING', file=sys.stderr)
+            service = TableClient.from_connection_string(conn_str=current_app.config['TABLE_CONNECTION_STRING'], table_name='greenhouseenvironment')
         filter = f"PartitionKey eq '1' and EventEnqueuedUtcTime gt datetime'{date_from}' and EventEnqueuedUtcTime lt datetime'{date_to}'" # https://learn.microsoft.com/en-us/rest/api/storageservices/querying-tables-and-entities
         entries = service.query_entities(query_filter=filter, headers={'Accept': 'application/json;odata=nometadata'})
         data = []
