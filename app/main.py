@@ -25,24 +25,30 @@ def convertTime(datetime):
 
 @bp.route('/', methods=['GET', 'POST'])
 def main():
-    print(request.args, file=sys.stderr)
     if request.args.get('selectDate', ''):
         date_from = '{0}T00:00:00.0Z'.format(request.args.get('from', '').strip()) # '2014-05-27 11:50:12'
         date_to = '{0}T23:59:59.9Z'.format(request.args.get('to', '').strip()) # '2018-09-13 13:21:39'
         tableConnectionString = current_app.config['TABLE_CONNECTION_STRING']
         if tableConnectionString is None:
-            print('No TABLE_CONNECTION_STRING set for Flask application', file=sys.stderr)
             print('Using DefaultAzureCredential', file=sys.stderr)
-            service = TableClient.from_table_url(table_url='https://gpiotstorage.table.core.windows.net/greenhouseenvironment', credential=DefaultAzureCredential())
+            try:
+                service = TableClient.from_table_url(table_url='https://gpiotstorage.table.core.windows.net/greenhouseenvironment', credential=DefaultAzureCredential())
+            except Exception as e:
+                return render_template('404.html', error='Error creating service from DefaultAzureCredential')
         else:
             print('Using TABLE_CONNECTION_STRING', file=sys.stderr)
             service = TableClient.from_connection_string(conn_str=current_app.config['TABLE_CONNECTION_STRING'], table_name='greenhouseenvironment')
+        print(f'Querying table for data between {date_from} and {date_to}', file=sys.stderr)
         filter = f"PartitionKey eq '1' and EventEnqueuedUtcTime gt datetime'{date_from}' and EventEnqueuedUtcTime lt datetime'{date_to}'" # https://learn.microsoft.com/en-us/rest/api/storageservices/querying-tables-and-entities
-        entries = service.query_entities(query_filter=filter, headers={'Accept': 'application/json;odata=nometadata'})
-        data = []
-        for entry in entries:
-            record = {"dateTime": convertTime(entry['EventEnqueuedUtcTime']), 'temperature': entry['temperature'], 'humidity': entry['humidity']}
-            data.append(record)
+        try:
+            entries = service.query_entities(query_filter=filter, headers={'Accept': 'application/json;odata=nometadata'})
+            data = []
+            for entry in entries:
+                record = {"dateTime": convertTime(entry['EventEnqueuedUtcTime']), 'temperature': entry['temperature'], 'humidity': entry['humidity']}
+                data.append(record)
+        except Exception as e:
+            return render_template('404.html', error='Error querying table')
+        
         df = pd.DataFrame(data)
         df.sort_values(by=['dateTime'], inplace=True)
         times = df['dateTime'].tolist()
